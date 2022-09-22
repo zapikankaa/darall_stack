@@ -36,8 +36,46 @@ app.post('/position/new', async (req, res) => {
       description: description ? description : null,
       weight_g: weight_g ? Number(weight_g) : null,
       volume_ml: volume_ml ? Number(volume_ml) : null,
-      ingredients: ingredients ? ingredients : null
+      ingredients: ingredients ? ingredients : null,
+      tags: {
+        connect: tags
+      }
+    },
+    include: {
+      tags: true
     }
+  })
+  res.json(result)
+})
+
+// UPDATE Position
+app.put('/positions/:id', async (req, res) => {
+  const { id } = req.params
+  const { name, description, ingredients, weight_g, volume_ml, price_rub, tags } = req.body
+
+  const result = await prisma.position.update({
+    where: { id: Number(id) },
+    data: {
+      name,
+      description,
+      ingredients,
+      weight_g: weight_g ? Number(weight_g) : undefined,
+      volume_ml: volume_ml ? Number(volume_ml) : undefined,
+      price_rub: volume_ml ? Number(price_rub) : undefined,
+      tags: {
+        connect: tags.added ? tags.added : [],
+        disconnect: tags.removed ? tags.removed : []
+      }
+    }
+  })
+  res.json(result)
+})
+
+// DELETE Position
+app.delete('/positions/:id', async (req, res) => {
+  const { id } = req.params
+  const result = await prisma.position.delete({
+    where: { id: Number(id) }
   })
   res.json(result)
 })
@@ -53,7 +91,6 @@ app.get('/categories', async (req, res) => {
 // CREATE Category with any tags
 app.post('/category/new', async (req, res) => {
   // values: CategoryVal[]
-  console.log(req.body)
   const { name, description } = req.body
   const tags = []
   for (let tag in req.body.tags) {

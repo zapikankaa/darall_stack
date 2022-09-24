@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import express from 'express'
+import { convertExpectedNumber, convertExpectedString } from './helper'
 
 const prisma = new PrismaClient()
 const app = express()
@@ -56,16 +57,19 @@ app.put('/positions/:id', async (req, res) => {
   const result = await prisma.position.update({
     where: { id: Number(id) },
     data: {
-      name,
-      description,
-      ingredients,
-      weight_g: weight_g ? Number(weight_g) : undefined,
-      volume_ml: volume_ml ? Number(volume_ml) : undefined,
-      price_rub: volume_ml ? Number(price_rub) : undefined,
+      name: name ? name : undefined,
+      description: convertExpectedString(description),
+      ingredients: convertExpectedString(ingredients),
+      weight_g: convertExpectedNumber(weight_g),
+      volume_ml: convertExpectedNumber(volume_ml),
+      price_rub: price_rub ? Number(price_rub) : undefined,
       tags: {
-        connect: tags.added ? tags.added : [],
-        disconnect: tags.removed ? tags.removed : []
+        connect: tags?.added ? tags.added : [],
+        disconnect: tags?.removed ? tags.removed : []
       }
+    },
+    include: {
+      tags: true
     }
   })
   res.json(result)

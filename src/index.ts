@@ -108,6 +108,9 @@ app.post('/category/new', async (req, res) => {
         create: tags
       }
     },
+    include: {
+      tags: true
+    }
   })
   res.json(result)
 })
@@ -144,6 +147,9 @@ app.put('/category/:id', async (req, res) => {
         },
         deleteMany: tags.deleted
       }
+    },
+    include: {
+      tags: true
     }
   })
   res.json(result)

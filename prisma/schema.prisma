@@ -13,6 +13,7 @@ datasource db {
 model Position { // можно добавить фото
   id             Int @default(autoincrement()) @id
   name           String
+  picture        String?
   price_rub      Int
   description    String?
   weight_g       Int?

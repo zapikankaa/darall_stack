@@ -1,10 +1,12 @@
 import { PrismaClient } from '@prisma/client'
 import express from 'express'
+import cors from 'cors'
+import multer from 'multer'
 import { convertExpectedNumber, convertExpectedString } from './helper'
 
 const prisma = new PrismaClient()
+const upload = multer({ dest: 'uploads' })
 const app = express()
-const cors = require('cors')
 
 app.use(express.json())
 app.use(cors())
@@ -28,18 +30,19 @@ app.get('/positions/:id', async (req, res) => {
 })
 
 // CREATE Position
-app.post('/position/new', async (req, res) => {
+app.post('/position/new', upload.single('picture'), async (req, res) => {
   const { name, price_rub, description, weight_g, volume_ml, ingredients, tags } = req.body
   const result = await prisma.position.create({
     data: {
       name,
       price_rub: Number(price_rub),
+      picture: req.file ? req.file.path : null,
       description: description ? description : null,
       weight_g: weight_g ? Number(weight_g) : null,
       volume_ml: volume_ml ? Number(volume_ml) : null,
       ingredients: ingredients ? ingredients : null,
       tags: {
-        connect: tags
+        connect: JSON.parse(tags)
       }
     },
     include: {
